@@ -1,42 +1,39 @@
 import random
+from collections import defaultdict
 
 class TrigramModel:
     def __init__(self):
-        """
-        Initializes the TrigramModel.
-        """
-        # TODO: Initialize any data structures you need to store the n-gram counts.
-       
-        pass
+        self.counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        self.context_totals = defaultdict(lambda: defaultdict(int))
+        self.vocab = set()
+
+    def tokenize(self, text):
+        words = text.split()
+        return words
 
     def fit(self, text):
-        """
-        Trains the trigram model on the given text.
+        words = ["<s>", "<s>"] + self.tokenize(text) + ["</s>"]
 
-        Args:
-            text (str): The text to train the model on.
-        """
-        # TODO: Implement the training logic.
-        # This will involve:
-        # 1. Cleaning the text (e.g., converting to lowercase, removing punctuation).
-        # 2. Tokenizing the text into words.
-        # 3. Padding the text with start and end tokens.
-        # 4. Counting the trigrams.
-        pass
+        for w1, w2, w3 in zip(words, words[1:], words[2:]):
+            self.counts[w1][w2][w3] += 1
+            self.context_totals[w1][w2] += 1
+            self.vocab.update([w1, w2, w3])
 
-    def generate(self, max_length=50):
-        """
-        Generates new text using the trained trigram model.
+    def generate(self, max_words=50):
+        w1, w2 = "<s>", "<s>"
+        output = []
 
-        Args:
-            max_length (int): The maximum length of the generated text.
+        for _ in range(max_words):
+            next_words = list(self.counts[w1][w2].keys())
+            counts = list(self.counts[w1][w2].values())
 
-        Returns:
-            str: The generated text.
-        """
-        # TODO: Implement the generation logic.
-        # This will involve:
-        # 1. Starting with the start tokens.
-        # 2. Probabilistically choosing the next word based on the current context.
-        # 3. Repeating until the end token is generated or the maximum length is reached.
-        pass
+            if not next_words:
+                break
+            next_word = random.choices(next_words, weights=counts, k=1)[0]
+
+            if next_word == "</s>":
+                break
+            output.append(next_word)
+            w1, w2 = w2, next_word
+
+        return " ".join(output)

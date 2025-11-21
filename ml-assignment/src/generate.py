@@ -1,18 +1,16 @@
+from data_preprocessing import load_and_clean
 from ngram_model import TrigramModel
 
 def main():
-    # Create a new TrigramModel
-    model = TrigramModel()
+    text = load_and_clean("data/alice.txt")
 
-    # Train the model on the example corpus
-    with open("data/example_corpus.txt", "r") as f:
-        text = f.read()
+    model = TrigramModel()
     model.fit(text)
 
-    # Generate new text
-    generated_text = model.generate()
-    print("Generated Text:")
-    print(generated_text)
+    generated = model.generate(150)
+
+    print("\nGenerated Text:\n")
+    print(generated)
 
 if __name__ == "__main__":
     main()
